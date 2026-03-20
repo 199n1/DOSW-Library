@@ -1,13 +1,15 @@
 package edu.eci.dosw.tdd.core.service;
 
 import edu.eci.dosw.tdd.core.model.User;
-import edu.eci.dosw.tdd.core.validator.UserValidator;
+import edu.eci.dosw.tdd.core.Validator.UserValidator;
+import edu.eci.dosw.tdd.core.util.idGeneratorUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ public class UserService {
 
         userValidator.validate(user);
         if (user.getId() == null) {
-            user.setId(IdGeneratorUtil.generateId());
+            user.setId(idGeneratorUtil.generateId());
         }
 
         users.add(user);
