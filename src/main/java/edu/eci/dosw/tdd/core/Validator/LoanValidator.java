@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 public class LoanValidator {
     public void validateLoanCreation(User user, Book book) {
         if (user == null) {
-            throw new IllegalArgumentException("El usuario es requerido para el préstamo");
+            throw new IllegalArgumentException("Se necesita el usuario para realizar el prestamo");
         }
         if (book == null) {
-            throw new IllegalArgumentException("El libro es requerido para el préstamo");
+            throw new IllegalArgumentException("Se necesita el libro para realizar el prestamo");
         }
     }
 }

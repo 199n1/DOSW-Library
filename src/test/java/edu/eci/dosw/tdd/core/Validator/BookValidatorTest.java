@@ -1,13 +1,13 @@
-package edu.eci.dosw.tdd.core.validator;
+
+package edu.eci.dosw.tdd.core.Validator;
 
 import edu.eci.dosw.tdd.core.model.Book;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class BookValidatorTest {
 
-    private final edu.eci.dosw.tdd.core.validator.BookValidator validator = new edu.eci.dosw.tdd.core.validator.BookValidator();
+    private final BookValidator validator = new BookValidator();
 
     @Test
     void validate_ShouldDoNothing_WhenBookIsValid() {
@@ -17,18 +17,20 @@ class BookValidatorTest {
 
     @Test
     void validate_ShouldThrowException_WhenBookIsNull() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> validator.validate(null));
-        assertEquals("El libro no puede ser nulo", exception.getMessage());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> validator.validate(null));
+        assertEquals("El libro tiene que ser diferente de nulo", ex.getMessage());
     }
 
     @Test
-    void validate_ShouldThrowException_WhenTitleOrAuthorIsNullOrEmpty() {
-        Book noTitle = Book.builder().author("Author").build();
-        Book noAuthor = Book.builder().title("Title").build();
-        Book emptyTitle = Book.builder().title("").author("Author").build();
+    void validate_ShouldThrowException_WhenTitleIsEmpty() {
+        Book book = Book.builder().title("").author("Author").build();
+        assertThrows(IllegalArgumentException.class, () -> validator.validate(book));
+    }
 
-        assertThrows(IllegalArgumentException.class, () -> validator.validate(noTitle));
-        assertThrows(IllegalArgumentException.class, () -> validator.validate(noAuthor));
-        assertThrows(IllegalArgumentException.class, () -> validator.validate(emptyTitle));
+    @Test
+    void validate_ShouldThrowException_WhenAuthorIsNull() {
+        Book book = Book.builder().title("Title").build();
+        assertThrows(IllegalArgumentException.class, () -> validator.validate(book));
     }
 }

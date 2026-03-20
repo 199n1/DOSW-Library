@@ -18,14 +18,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/books")
 @RequiredArgsConstructor
-@Tag(name = "Libros", description = "Operaciones de inventario y consulta de libros")
+@Tag(name = "Libros", description = "Procesos de inventario y busqueda de libros")
 public class BookController {
 
     private final BookService bookService;
     private final BookMapper bookMapper;
 
     @PostMapping
-    @Operation(summary = "Agregar un libro", description = "Añade un libro al inventario con su cantidad inicial")
+    @Operation(summary = "Añadir un libro", description = "Registra un uevo libro en el inventario con la cantidad de ejemplares")
     public ResponseEntity<BookDTO> addBook(@RequestBody BookDTO bookDTO) {
         Book book = bookMapper.toEntity(bookDTO);
         Book createdBook = bookService.addBook(book, bookDTO.getInitialQuantity());
@@ -33,7 +33,7 @@ public class BookController {
     }
 
     @GetMapping
-    @Operation(summary = "Obtener inventario", description = "Devuelve el catálogo de libros")
+    @Operation(summary = "Consigue inventario completo", description = "Retorna todos los libros registrados con su cantidad disponible")
     public ResponseEntity<List<BookDTO>> getAllBooks() {
         Map<Book, Integer> inventory = bookService.getAllBooks();
         List<BookDTO> books = inventory.entrySet().stream()
@@ -47,10 +47,11 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar libro por ID", description = "Busca la información detallada de un libro")
+    @Operation(summary = "Buscar libro por ID", description = "da la información de un libro específico dado su ID")
     public ResponseEntity<BookDTO> getBookById(@PathVariable String id) {
         Book book = bookService.getBookById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Libro no encontrado con ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No se encontró ningún libro con el ID: " + id));
         return ResponseEntity.ok(bookMapper.toDto(book));
     }
 }

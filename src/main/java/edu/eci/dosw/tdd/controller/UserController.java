@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Tag(name = "Usuarios", description = "Operaciones relacionadas con los usuarios")
+@Tag(name = "Usuarios", description = "da Operaciones de registro y consulta de usuarios")
 public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
 
     @PostMapping
-    @Operation(summary = "Crear un nuevo usuario", description = "Registra un usuario en el sistema")
+    @Operation(summary = "Registrar usuario", description = "Crea un nuevo usuario en el sistema de biblioteca")
     public ResponseEntity<UserDTO> registerUser(@RequestBody UserDTO userDTO) {
         User user = userMapper.toEntity(userDTO);
         User createdUser = userService.registerUser(user);
@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping
-    @Operation(summary = "Obtener todos los usuarios", description = "Devuelve la lista de usuarios registrados")
+    @Operation(summary = "Listar usuarios", description = "retorna los usarios regustrados en el sistema")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userService.getAllUsers().stream()
                 .map(userMapper::toDto)
@@ -41,10 +41,11 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Obtener usuario por ID", description = "Busca un usuario por su identificador único")
+    @Operation(summary = "Busca usuario por ID", description = "Retorna la información de un usuario dado su ID")
     public ResponseEntity<UserDTO> getUserById(@PathVariable String id) {
         User user = userService.getUserById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No se encontró ningún usuario con el ID: " + id));
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 }

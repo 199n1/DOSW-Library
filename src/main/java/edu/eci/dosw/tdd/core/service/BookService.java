@@ -1,8 +1,8 @@
 package edu.eci.dosw.tdd.core.service;
 
 import edu.eci.dosw.tdd.core.model.Book;
-import edu.eci.dosw.tdd.core.util.idGeneratorUtil;
-import edu.eci.dosw.tdd.core.validator.BookValidator;
+import edu.eci.dosw.tdd.core.util.IdGeneratorUtil;
+import edu.eci.dosw.tdd.core.Validator.BookValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +19,9 @@ public class BookService {
 
     public Book addBook(Book book, int quantity) {
         bookValidator.validate(book);
-
         if (book.getId() == null) {
-            book.setId(idGeneratorUtil.generateId());
+            book.setId(IdGeneratorUtil.generateId());
         }
-
         bookInventory.put(book, bookInventory.getOrDefault(book, 0) + quantity);
         return book;
     }

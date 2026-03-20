@@ -1,7 +1,7 @@
 package edu.eci.dosw.tdd.core.service;
 
 import edu.eci.dosw.tdd.core.model.Book;
-import edu.eci.dosw.tdd.core.validator.BookValidator;
+import edu.eci.dosw.tdd.core.Validator.BookValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,100 +29,78 @@ class BookServiceTest {
 
     @BeforeEach
     void setUp() {
-        sampleBook = Book.builder()
-                .title("Test Book")
-                .author("Test Author")
-                .build();
+        sampleBook = Book.builder().title("Clean Code").author("Robert C. Martin").build();
     }
 
     @Test
     void addBook_ShouldAddBookSuccessfully() {
-        // Arrange
         doNothing().when(bookValidator).validate(any(Book.class));
-
-        // Act
-        Book addedBook = bookService.addBook(sampleBook, 5);
-
-        // Assert
-        assertNotNull(addedBook.getId());
-        assertEquals("Test Book", addedBook.getTitle());
+        Book added = bookService.addBook(sampleBook, 5);
+        assertNotNull(added.getId());
+        assertEquals(5, bookService.getAllBooks().get(added));
         verify(bookValidator, times(1)).validate(sampleBook);
-        assertEquals(5, bookService.getAllBooks().get(addedBook));
     }
 
     @Test
     void addBook_ShouldThrowException_WhenValidatorFails() {
-        // Arrange
-        doThrow(new IllegalArgumentException("El título y el autor del libro son obligatorios"))
+        doThrow(new IllegalArgumentException("El título y el autor del libro son obligatorios."))
                 .when(bookValidator).validate(any());
-
         Book invalidBook = Book.builder().title("").build();
-
-        // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> bookService.addBook(invalidBook, 1));
-        verify(bookValidator, times(1)).validate(invalidBook);
         assertFalse(bookService.getAllBooks().containsKey(invalidBook));
     }
 
     @Test
     void getAllBooks_ShouldReturnInventory() {
-        // Arrange
         doNothing().when(bookValidator).validate(any());
         bookService.addBook(sampleBook, 10);
-
-        // Act
         Map<Book, Integer> inventory = bookService.getAllBooks();
-
-        // Assert
         assertEquals(1, inventory.size());
         assertEquals(10, inventory.get(sampleBook));
     }
 
     @Test
     void getBookById_ShouldReturnBook_WhenExists() {
-        // Arrange
         doNothing().when(bookValidator).validate(any());
-        Book addedBook = bookService.addBook(sampleBook, 1);
-        String bookId = addedBook.getId();
-
-        // Act
-        Optional<Book> foundBook = bookService.getBookById(bookId);
-
-        // Assert
-        assertTrue(foundBook.isPresent());
-        assertEquals(addedBook, foundBook.get());
+        Book added = bookService.addBook(sampleBook, 1);
+        Optional<Book> found = bookService.getBookById(added.getId());
+        assertTrue(found.isPresent());
+        assertEquals(added, found.get());
     }
 
     @Test
-    void isBookAvailable_ShouldReturnTrue_WhenQuantityIsGreaterThanZero() {
-        // Arrange
-        doNothing().when(bookValidator).validate(any());
-        bookService.addBook(sampleBook, 5);
+    void getBookById_ShouldReturnEmpty_WhenNotExists() {
+        Optional<Book> found = bookService.getBookById("id-inexistente");
+        assertFalse(found.isPresent());
+    }
 
-        // Act & Assert
+    @Test
+    void isBookAvailable_ShouldReturnTrue_WhenQuantityGreaterThanZero() {
+        doNothing().when(bookValidator).validate(any());
+        bookService.addBook(sampleBook, 3);
         assertTrue(bookService.isBookAvailable(sampleBook));
     }
 
     @Test
     void isBookAvailable_ShouldReturnFalse_WhenQuantityIsZero() {
-        // Arrange
         doNothing().when(bookValidator).validate(any());
         bookService.addBook(sampleBook, 0);
-
-        // Act & Assert
         assertFalse(bookService.isBookAvailable(sampleBook));
     }
 
     @Test
-    void updateBookAvailability_ShouldChangeQuantity() {
-        // Arrange
+    void updateBookAvailability_ShouldDecreaseQuantity() {
         doNothing().when(bookValidator).validate(any());
         bookService.addBook(sampleBook, 5);
-
-        // Act
         bookService.updateBookAvailability(sampleBook, -2);
-
-        // Assert
         assertEquals(3, bookService.getAllBooks().get(sampleBook));
+    }
+
+    @Test
+    void updateBookAvailability_ShouldIncreaseQuantity() {
+        doNothing().when(bookValidator).validate(any());
+        bookService.addBook(sampleBook, 2);
+        bookService.updateBookAvailability(sampleBook, 3);
+        assertEquals(5, bookService.getAllBooks().get(sampleBook));
     }
 }

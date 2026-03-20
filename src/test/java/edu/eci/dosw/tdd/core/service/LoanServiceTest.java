@@ -1,13 +1,14 @@
+// LoanServiceTest.java
 package edu.eci.dosw.tdd.core.service;
 
-import edu.eci.dosw.tdd.core.exception.BookNotAvaibleException;
+import edu.eci.dosw.tdd.core.exception.BookNotAvailableException;  // ← corregido
 import edu.eci.dosw.tdd.core.exception.LoanLimitExceededException;
 import edu.eci.dosw.tdd.core.exception.UserNotFoundException;
 import edu.eci.dosw.tdd.core.model.Book;
 import edu.eci.dosw.tdd.core.model.Loan;
 import edu.eci.dosw.tdd.core.model.LoanStatus;
 import edu.eci.dosw.tdd.core.model.User;
-import edu.eci.dosw.tdd.core.validator.LoanValidator;
+import edu.eci.dosw.tdd.core.Validator.LoanValidator;  // ← corregido
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,14 +27,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class LoanServiceTest {
 
-    @Mock
-    private UserService userService;
-
-    @Mock
-    private BookService bookService;
-
-    @Mock
-    private LoanValidator loanValidator;
+    @Mock private UserService userService;
+    @Mock private BookService bookService;
+    @Mock private LoanValidator loanValidator;
 
     @InjectMocks
     private LoanService loanService;
@@ -44,51 +40,52 @@ class LoanServiceTest {
     @BeforeEach
     void setUp() {
         sampleUser = User.builder().id("user-1").name("Test User").build();
-        sampleBook = Book.builder().id("book-1").title("Test Book").build();
+        sampleBook = Book.builder().id("book-1").title("Clean Code").author("Uncle Bob").build();
     }
 
     @Test
     void createLoan_ShouldCreateLoanSuccessfully() {
-        // Arrange
         when(userService.getUserById("user-1")).thenReturn(Optional.of(sampleUser));
         when(bookService.getBookById("book-1")).thenReturn(Optional.of(sampleBook));
         when(bookService.isBookAvailable(sampleBook)).thenReturn(true);
         doNothing().when(loanValidator).validateLoanCreation(sampleUser, sampleBook);
 
-        // Act
         Loan loan = loanService.createLoan("user-1", "book-1");
 
-        // Assert
         assertNotNull(loan);
         assertEquals(sampleUser, loan.getUser());
         assertEquals(sampleBook, loan.getBook());
         assertEquals(LoanStatus.ACTIVE, loan.getStatus());
+        assertNotNull(loan.getLoanDate());
         verify(bookService, times(1)).updateBookAvailability(sampleBook, -1);
     }
 
     @Test
     void createLoan_ShouldThrowUserNotFoundException_WhenUserDoesNotExist() {
-        // Arrange
         when(userService.getUserById("user-1")).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(UserNotFoundException.class, () -> loanService.createLoan("user-1", "book-1"));
+        assertThrows(UserNotFoundException.class,
+                () -> loanService.createLoan("user-1", "book-1"));
     }
 
     @Test
-    void createLoan_ShouldThrowBookNotAvaibleException_WhenBookIsNotAvailable() {
-        // Arrange
+    void createLoan_ShouldThrowIllegalArgument_WhenBookDoesNotExist() {
+        when(userService.getUserById("user-1")).thenReturn(Optional.of(sampleUser));
+        when(bookService.getBookById("book-1")).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class,
+                () -> loanService.createLoan("user-1", "book-1"));
+    }
+
+    @Test
+    void createLoan_ShouldThrowBookNotAvailableException_WhenBookIsNotAvailable() {
         when(userService.getUserById("user-1")).thenReturn(Optional.of(sampleUser));
         when(bookService.getBookById("book-1")).thenReturn(Optional.of(sampleBook));
         when(bookService.isBookAvailable(sampleBook)).thenReturn(false);
-
-        // Act & Assert
-        assertThrows(BookNotAvaibleException.class, () -> loanService.createLoan("user-1", "book-1"));
+        assertThrows(BookNotAvailableException.class,
+                () -> loanService.createLoan("user-1", "book-1"));
     }
 
     @Test
     void createLoan_ShouldThrowLoanLimitExceededException_WhenUserHasThreeActiveLoans() {
-        // Arrange
         when(userService.getUserById("user-1")).thenReturn(Optional.of(sampleUser));
         when(bookService.getBookById(anyString())).thenReturn(Optional.of(sampleBook));
         when(bookService.isBookAvailable(any())).thenReturn(true);
@@ -97,45 +94,38 @@ class LoanServiceTest {
         loanService.createLoan("user-1", "book-2");
         loanService.createLoan("user-1", "book-3");
 
-        // Act & Assert
-        assertThrows(LoanLimitExceededException.class, () -> loanService.createLoan("user-1", "book-4"));
+        assertThrows(LoanLimitExceededException.class,
+                () -> loanService.createLoan("user-1", "book-4"));
     }
 
     @Test
     void returnLoan_ShouldReturnBookSuccessfully() {
-        // Arrange
         when(userService.getUserById("user-1")).thenReturn(Optional.of(sampleUser));
         when(bookService.getBookById("book-1")).thenReturn(Optional.of(sampleBook));
         when(bookService.isBookAvailable(sampleBook)).thenReturn(true);
         loanService.createLoan("user-1", "book-1");
 
-        // Act
-        Loan returnedLoan = loanService.returnLoan("user-1", "book-1");
+        Loan returned = loanService.returnLoan("user-1", "book-1");
 
-        // Assert
-        assertEquals(LoanStatus.RETURNED, returnedLoan.getStatus());
-        assertNotNull(returnedLoan.getReturnDate());
+        assertEquals(LoanStatus.RETURNED, returned.getStatus());
+        assertNotNull(returned.getReturnDate());
         verify(bookService, times(1)).updateBookAvailability(sampleBook, 1);
     }
 
     @Test
     void returnLoan_ShouldThrowException_WhenNoActiveLoanFound() {
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> loanService.returnLoan("user-1", "book-1"));
+        assertThrows(IllegalArgumentException.class,
+                () -> loanService.returnLoan("user-1", "book-1"));
     }
 
     @Test
     void getAllLoans_ShouldReturnAllLoans() {
-        // Arrange
         when(userService.getUserById(anyString())).thenReturn(Optional.of(sampleUser));
         when(bookService.getBookById(anyString())).thenReturn(Optional.of(sampleBook));
         when(bookService.isBookAvailable(any())).thenReturn(true);
         loanService.createLoan("user-1", "book-1");
 
-        // Act
-        List<Loan> allLoans = loanService.getAllLoans();
-
-        // Assert
-        assertEquals(1, allLoans.size());
+        List<Loan> all = loanService.getAllLoans();
+        assertEquals(1, all.size());
     }
 }
