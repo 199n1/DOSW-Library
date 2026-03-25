@@ -21,7 +21,7 @@ class LoanValidatorTest {
         Book book = Book.builder().id("b1").title("Clean Code").build();
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> validator.validateLoanCreation(null, book));
-        assertEquals("El usuario es requerido para realizar el préstamo.", ex.getMessage());
+        assertEquals("Se necesita el usuario para realizar el prestamo", ex.getMessage());
     }
 
     @Test
@@ -29,6 +29,6 @@ class LoanValidatorTest {
         User user = User.builder().id("u1").name("Test User").build();
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> validator.validateLoanCreation(user, null));
-        assertEquals("El libro es requerido para realizar el préstamo.", ex.getMessage());
+        assertEquals("Se necesita el libro para realizar el prestamo", ex.getMessage());
     }
 }

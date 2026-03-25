@@ -1,5 +1,4 @@
-// UserValidator.java
-package edu.eci.dosw.tdd.core.Validator;  // ← corregido minúscula
+package edu.eci.dosw.tdd.core.Validator;
 
 import edu.eci.dosw.tdd.core.model.User;
 import edu.eci.dosw.tdd.core.util.ValidationUtil;

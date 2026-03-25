@@ -18,7 +18,7 @@ class UserValidatorTest {
     void validate_ShouldThrowException_WhenUserIsNull() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(null));
-        assertEquals("El usuario no puede ser nulo.", ex.getMessage());
+        assertEquals("El usario debe ser diferente de null", ex.getMessage());
     }
 
     @Test
