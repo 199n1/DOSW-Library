@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class BookValidator {
     public void validate(Book book) {
         if (book == null) {
-            throw new IllegalArgumentException("l libro tiene que ser diferente de nulo");
+            throw new IllegalArgumentException("El libro tiene que ser diferente de nulo");
         }
         if (ValidationUtil.isNullOrEmpty(book.getTitle()) || ValidationUtil.isNullOrEmpty(book.getAuthor())) {
             throw new IllegalArgumentException("El título y el autor del libro son obligatorios.");
