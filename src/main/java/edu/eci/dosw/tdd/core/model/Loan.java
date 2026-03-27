@@ -1,9 +1,6 @@
 package edu.eci.dosw.tdd.core.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.time.LocalDate;
 
 @Data
@@ -11,6 +8,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class Loan {
+    private String id;
     private Book book;
     private User user;
     private LocalDate loanDate;

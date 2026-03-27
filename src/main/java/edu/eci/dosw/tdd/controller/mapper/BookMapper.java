@@ -12,6 +12,8 @@ public class BookMapper {
                 .id(dto.getId())
                 .title(dto.getTitle())
                 .author(dto.getAuthor())
+                .totalStock(dto.getTotalStock())
+                .availableStock(dto.getAvailableStock())
                 .build();
     }
 
@@ -20,6 +22,8 @@ public class BookMapper {
                 .id(book.getId())
                 .title(book.getTitle())
                 .author(book.getAuthor())
+                .totalStock(book.getTotalStock())
+                .availableStock(book.getAvailableStock())
                 .build();
     }
 }

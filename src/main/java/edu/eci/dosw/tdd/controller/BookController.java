@@ -12,42 +12,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/books")
 @RequiredArgsConstructor
-@Tag(name = "Libros", description = "Procesos de inventario y busqueda de libros")
+@Tag(name = "Libros", description = "Procesos de inventario y búsqueda de libros")
 public class BookController {
 
     private final BookService bookService;
     private final BookMapper bookMapper;
 
     @PostMapping
-    @Operation(summary = "Añadir un libro", description = "Registra un uevo libro en el inventario con la cantidad de ejemplares")
+    @Operation(summary = "Añadir un libro")
     public ResponseEntity<BookDTO> addBook(@RequestBody BookDTO bookDTO) {
         Book book = bookMapper.toEntity(bookDTO);
-        Book createdBook = bookService.addBook(book, bookDTO.getInitialQuantity());
-        return new ResponseEntity<>(bookMapper.toDto(createdBook), HttpStatus.CREATED);
+        Book created = bookService.addBook(book, bookDTO.getTotalStock());
+        return new ResponseEntity<>(bookMapper.toDto(created), HttpStatus.CREATED);
     }
 
     @GetMapping
-    @Operation(summary = "Consigue inventario completo", description = "Retorna todos los libros registrados con su cantidad disponible")
+    @Operation(summary = "Obtener todos los libros")
     public ResponseEntity<List<BookDTO>> getAllBooks() {
-        Map<Book, Integer> inventory = bookService.getAllBooks();
-        List<BookDTO> books = inventory.entrySet().stream()
-                .map(entry -> {
-                    BookDTO dto = bookMapper.toDto(entry.getKey());
-                    dto.setInitialQuantity(entry.getValue());
-                    return dto;
-                })
+        List<BookDTO> books = bookService.getAllBooks()
+                .stream()
+                .map(bookMapper::toDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(books);
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar libro por ID", description = "da la información de un libro específico dado su ID")
+    @Operation(summary = "Buscar libro por ID")
     public ResponseEntity<BookDTO> getBookById(@PathVariable String id) {
         Book book = bookService.getBookById(id)
                 .orElseThrow(() -> new IllegalArgumentException(

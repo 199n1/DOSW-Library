@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/biblioteca_db
+    username: postgres
+    password: ciclos234
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # crea/actualiza las tablas autom�ticamente seg�n tus entidades
+    show-sql: true        # muestra las queries SQL en consola (�til para aprender)
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+server:
+  port: 8080

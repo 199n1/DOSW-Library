@@ -11,6 +11,9 @@ public class UserMapper {
         return User.builder()
                 .id(dto.getId())
                 .name(dto.getName())
+                .username(dto.getUsername())
+                .password(dto.getPassword())
+                .role(dto.getRole() != null ? dto.getRole() : "USER")
                 .build();
     }
 
@@ -18,6 +21,8 @@ public class UserMapper {
         return UserDTO.builder()
                 .id(user.getId())
                 .name(user.getName())
+                .username(user.getUsername())
+                .role(user.getRole())
                 .build();
     }
 }

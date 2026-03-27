@@ -31,9 +31,28 @@ class BookControllerTest {
 
     @Test
     void addBook_ShouldReturnCreatedBook() throws Exception {
-        BookDTO request = BookDTO.builder().title("Clean Code").author("Uncle Bob").initialQuantity(5).build();
-        Book book = Book.builder().id("b1").title("Clean Code").author("Uncle Bob").build();
-        BookDTO response = BookDTO.builder().id("b1").title("Clean Code").author("Uncle Bob").build();
+        BookDTO request = BookDTO.builder()
+                .title("Clean Code")
+                .author("Uncle Bob")
+                .totalStock(5)
+                .availableStock(5)
+                .build();
+
+        Book book = Book.builder()
+                .id("b1")
+                .title("Clean Code")
+                .author("Uncle Bob")
+                .totalStock(5)
+                .availableStock(5)
+                .build();
+
+        BookDTO response = BookDTO.builder()
+                .id("b1")
+                .title("Clean Code")
+                .author("Uncle Bob")
+                .totalStock(5)
+                .availableStock(5)
+                .build();
 
         when(bookMapper.toEntity(any())).thenReturn(book);
         when(bookService.addBook(any(), anyInt())).thenReturn(book);
@@ -44,21 +63,35 @@ class BookControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value("b1"))
-                .andExpect(jsonPath("$.title").value("Clean Code"));
+                .andExpect(jsonPath("$.title").value("Clean Code"))
+                .andExpect(jsonPath("$.totalStock").value(5));
     }
 
     @Test
-    void getAllBooks_ShouldReturnInventory() throws Exception {
-        Book book = Book.builder().id("b1").title("Clean Code").author("Uncle Bob").build();
-        BookDTO dto = BookDTO.builder().id("b1").title("Clean Code").author("Uncle Bob").build();
+    void getAllBooks_ShouldReturnList() throws Exception {
+        Book book = Book.builder()
+                .id("b1")
+                .title("Clean Code")
+                .author("Uncle Bob")
+                .totalStock(10)
+                .availableStock(10)
+                .build();
 
-        when(bookService.getAllBooks()).thenReturn(Collections.singletonMap(book, 10));
+        BookDTO dto = BookDTO.builder()
+                .id("b1")
+                .title("Clean Code")
+                .author("Uncle Bob")
+                .totalStock(10)
+                .availableStock(10)
+                .build();
+
+        when(bookService.getAllBooks()).thenReturn(Collections.singletonList(book));
         when(bookMapper.toDto(book)).thenReturn(dto);
 
         mockMvc.perform(get("/books"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("b1"))
-                .andExpect(jsonPath("$[0].initialQuantity").value(10));
+                .andExpect(jsonPath("$[0].totalStock").value(10));
     }
 
     @Test

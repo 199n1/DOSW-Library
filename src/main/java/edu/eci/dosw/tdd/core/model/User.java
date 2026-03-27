@@ -1,9 +1,6 @@
 package edu.eci.dosw.tdd.core.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -12,4 +9,7 @@ import lombok.NoArgsConstructor;
 public class User {
     private String id;
     private String name;
+    private String username;
+    private String password;
+    private String role;
 }

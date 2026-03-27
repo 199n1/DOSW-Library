@@ -1,18 +1,15 @@
 package edu.eci.dosw.tdd.controller.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class BookDTO {
     private String id;
     private String title;
     private String author;
-    private int initialQuantity;
+    private int totalStock;
+    private int availableStock;
 }
