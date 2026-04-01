@@ -2,6 +2,9 @@ package edu.eci.dosw.tdd.configuracion;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.Components;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,6 +17,13 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("API de la Biblioteca DOSW")
                         .version("1.0")
-                        .description("Documentación interactiva con Swagger para administrar libros, usuarios y préstamos de la empresa DOSW."));
+                        .description("Documentación interactiva con Swagger para administrar libros, usuarios y préstamos de la empresa DOSW."))
+                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+                .components(new Components()
+                        .addSecuritySchemes("Bearer Authentication", new SecurityScheme()
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                                .description("Ingresa el token JWT obtenido en /auth/login")));
     }
 }

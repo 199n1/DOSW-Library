@@ -115,4 +115,14 @@ public class LoanService {
                 .map(loanMapper::toDomain)
                 .collect(Collectors.toList());
     }
+
+    public List<Loan> getLoansByUsername(String username) {
+        UserEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "No se encuentra ningún usuario con username: " + username));
+        return loanRepository.findByUser(userEntity)
+                .stream()
+                .map(loanMapper::toDomain)
+                .collect(Collectors.toList());
+    }
 }

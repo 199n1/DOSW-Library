@@ -7,6 +7,7 @@ import edu.eci.dosw.tdd.persistence.entity.UserEntity;
 import edu.eci.dosw.tdd.persistence.mapper.UserPersistenceMapper;
 import edu.eci.dosw.tdd.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,16 +21,23 @@ public class UserService {
     private final UserValidator userValidator;
     private final UserRepository userRepository;
     private final UserPersistenceMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public User registerUser(User user) {
         userValidator.validate(user);
+
         if (user.getId() == null) {
             user.setId(IdGeneratorUtil.generateId());
         }
+
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException(
                     "Ya existe un usuario con el username: " + user.getUsername());
         }
+
+        // 🔐 Encriptar contraseña
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         UserEntity saved = userRepository.save(userMapper.toEntity(user));
         return userMapper.toDomain(saved);
     }
