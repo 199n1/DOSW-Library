@@ -2,19 +2,23 @@ package edu.eci.dosw.tdd.controller;
 
 import edu.eci.dosw.tdd.controller.dto.LoanDTO;
 import edu.eci.dosw.tdd.controller.mapper.LoanMapper;
-import edu.eci.dosw.tdd.core.exception.BookNotAvailableException;  // ← corregido
+import edu.eci.dosw.tdd.core.exception.BookNotAvailableException;
 import edu.eci.dosw.tdd.core.exception.UserNotFoundException;
 import edu.eci.dosw.tdd.core.model.Loan;
 import edu.eci.dosw.tdd.core.service.LoanService;
+import edu.eci.dosw.tdd.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -24,8 +28,11 @@ class LoanControllerTest {
     @Autowired private MockMvc mockMvc;
     @MockitoBean private LoanService loanService;
     @MockitoBean private LoanMapper loanMapper;
+    @MockitoBean private JwtService jwtService;
+    @MockitoBean private UserDetailsService userDetailsService;
 
     @Test
+    @WithMockUser(roles = "USER")
     void createLoan_ShouldReturnCreatedLoan() throws Exception {
         Loan loan = new Loan();
         LoanDTO dto = LoanDTO.builder().userId("u1").bookId("b1").status("ACTIVE").build();
@@ -34,6 +41,7 @@ class LoanControllerTest {
         when(loanMapper.toDto(loan)).thenReturn(dto);
 
         mockMvc.perform(post("/loans")
+                        .with(csrf())
                         .param("userId", "u1")
                         .param("bookId", "b1"))
                 .andExpect(status().isCreated())
@@ -41,28 +49,33 @@ class LoanControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void createLoan_ShouldReturn404_WhenUserNotFound() throws Exception {
         when(loanService.createLoan("u-falso", "b1"))
                 .thenThrow(new UserNotFoundException("No existe un usuario registrado con el ID: u-falso"));
 
         mockMvc.perform(post("/loans")
+                        .with(csrf())
                         .param("userId", "u-falso")
                         .param("bookId", "b1"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void createLoan_ShouldReturn409_WhenBookNotAvailable() throws Exception {
         when(loanService.createLoan("u1", "b-agotado"))
                 .thenThrow(new BookNotAvailableException("El libro no tiene ejemplares disponibles."));
 
         mockMvc.perform(post("/loans")
+                        .with(csrf())
                         .param("userId", "u1")
                         .param("bookId", "b-agotado"))
                 .andExpect(status().isConflict());
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void returnLoan_ShouldReturnUpdatedLoan() throws Exception {
         Loan loan = new Loan();
         LoanDTO dto = LoanDTO.builder().userId("u1").bookId("b1").status("RETURNED").build();
@@ -71,6 +84,7 @@ class LoanControllerTest {
         when(loanMapper.toDto(loan)).thenReturn(dto);
 
         mockMvc.perform(put("/loans/return")
+                        .with(csrf())
                         .param("userId", "u1")
                         .param("bookId", "b1"))
                 .andExpect(status().isOk())
@@ -78,6 +92,7 @@ class LoanControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "LIBRARIAN")
     void getAllLoans_ShouldReturnList() throws Exception {
         Loan loan = new Loan();
         LoanDTO dto = LoanDTO.builder().userId("u1").bookId("b1").build();

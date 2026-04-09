@@ -30,9 +30,13 @@ public class BookService {
         if (book.getId() == null) {
             book.setId(IdGeneratorUtil.generateId());
         }
+        System.out.println(">>> ID generado: " + book.getId());
         book.setTotalStock(quantity);
         book.setAvailableStock(quantity);
-        BookEntity saved = bookRepository.save(bookMapper.toEntity(book));
+        BookEntity entity = bookMapper.toEntity(book);
+        System.out.println(">>> ID en entity: " + entity.getId());
+        BookEntity saved = bookRepository.save(entity);
+        System.out.println(">>> ID guardado: " + saved.getId());
         return bookMapper.toDomain(saved);
     }
 

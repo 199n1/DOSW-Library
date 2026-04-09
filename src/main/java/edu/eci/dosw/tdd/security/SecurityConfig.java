@@ -40,17 +40,20 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Públicos
+                        // Publicos
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui/**",
+                        .requestMatchers(
+                                "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/v3/api-docs").permitAll()
 
+
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+
                         .requestMatchers(HttpMethod.GET, "/books/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/books/**").hasRole("LIBRARIAN")
 
-                        .requestMatchers(HttpMethod.POST, "/users/**").hasRole("LIBRARIAN")
                         .requestMatchers(HttpMethod.GET, "/users/**").hasRole("LIBRARIAN")
 
                         .requestMatchers("/loans/**").authenticated()

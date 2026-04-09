@@ -23,11 +23,18 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
-    public String generateToken(UserDetails userDetails) {
+    // FIX: ahora acepta userId para incluirlo en el token
+    public String generateToken(UserDetails userDetails, String userId) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", userDetails.getAuthorities()
                 .iterator().next().getAuthority());
+        extraClaims.put("userId", userId);
         return buildToken(extraClaims, userDetails, jwtExpiration);
+    }
+
+    // Sobrecarga para compatibilidad con tests que no pasan userId
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(userDetails, null);
     }
 
     private String buildToken(Map<String, Object> extraClaims,
@@ -49,6 +56,14 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", String.class));
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     private boolean isTokenExpired(String token) {

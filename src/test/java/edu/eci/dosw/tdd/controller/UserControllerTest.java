@@ -5,10 +5,13 @@ import edu.eci.dosw.tdd.controller.dto.UserDTO;
 import edu.eci.dosw.tdd.controller.mapper.UserMapper;
 import edu.eci.dosw.tdd.core.model.User;
 import edu.eci.dosw.tdd.core.service.UserService;
+import edu.eci.dosw.tdd.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -17,6 +20,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -27,8 +31,11 @@ class UserControllerTest {
     @Autowired private ObjectMapper objectMapper;
     @MockitoBean private UserService userService;
     @MockitoBean private UserMapper userMapper;
+    @MockitoBean private JwtService jwtService;
+    @MockitoBean private UserDetailsService userDetailsService;
 
     @Test
+    @WithMockUser
     void registerUser_ShouldReturnCreatedUser() throws Exception {
         UserDTO request = UserDTO.builder().name("Test User").build();
         User user = User.builder().id("1").name("Test User").build();
@@ -38,7 +45,9 @@ class UserControllerTest {
         when(userService.registerUser(any())).thenReturn(user);
         when(userMapper.toDto(any())).thenReturn(response);
 
+        // FIX: csrf() necesario aunque el endpoint sea público, porque @WebMvcTest activa CSRF
         mockMvc.perform(post("/users")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -47,6 +56,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "LIBRARIAN")
     void getAllUsers_ShouldReturnList() throws Exception {
         User user = User.builder().id("1").name("Test User").build();
         UserDTO dto = UserDTO.builder().id("1").name("Test User").build();
@@ -60,6 +70,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "LIBRARIAN")
     void getUserById_ShouldReturnUser_WhenExists() throws Exception {
         User user = User.builder().id("1").name("Test User").build();
         UserDTO dto = UserDTO.builder().id("1").name("Test User").build();
@@ -73,6 +84,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "LIBRARIAN")
     void getUserById_ShouldReturn400_WhenNotExists() throws Exception {
         when(userService.getUserById("99")).thenReturn(Optional.empty());
 

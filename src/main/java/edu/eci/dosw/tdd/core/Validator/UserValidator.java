@@ -6,12 +6,24 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserValidator {
+
     public void validate(User user) {
         if (user == null) {
-            throw new IllegalArgumentException("El usario debe ser diferente de null");
+            throw new IllegalArgumentException("El usuario debe ser diferente de null");
         }
         if (ValidationUtil.isNullOrEmpty(user.getName())) {
-            throw new IllegalArgumentException("El nombre del usuario no puede estar vacío.");
+            throw new IllegalArgumentException("El nombre del usuario no puede estar vacio.");
+        }
+        if (ValidationUtil.isNullOrEmpty(user.getUsername())) {
+            throw new IllegalArgumentException("El username no puede estar vacio.");
+        }
+        if (ValidationUtil.isNullOrEmpty(user.getPassword())) {
+            throw new IllegalArgumentException("La contrasena no puede estar vacia.");
+        }
+        if (user.getRole() != null &&
+                !user.getRole().equals("USER") &&
+                !user.getRole().equals("LIBRARIAN")) {
+            throw new IllegalArgumentException("El rol debe ser USER o LIBRARIAN.");
         }
     }
 }

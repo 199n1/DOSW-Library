@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/loans")
 @RequiredArgsConstructor
-@Tag(name = "Préstamos", description = "Administración de préstamos y devoluciones de libros")
+@Tag(name = "Prestamos", description = "Administracion de prestamos y devoluciones de libros")
 public class LoanController {
 
     private final LoanService loanService;
@@ -27,8 +27,8 @@ public class LoanController {
 
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('LIBRARIAN')")
-    @Operation(summary = "Crear un préstamo",
-            description = "Anota el préstamo de un libro a un usuario")
+    @Operation(summary = "Crear un prestamo",
+            description = "Anota el prestamo de un libro a un usuario")
     public ResponseEntity<LoanDTO> createLoan(@RequestParam String userId,
                                               @RequestParam String bookId) {
         Loan newLoan = loanService.createLoan(userId, bookId);
@@ -38,7 +38,7 @@ public class LoanController {
     @PutMapping("/return")
     @PreAuthorize("hasRole('USER') or hasRole('LIBRARIAN')")
     @Operation(summary = "Devolver un libro",
-            description = "Registra la devolución de un libro previamente prestado")
+            description = "Registra la devolucion de un libro previamente prestado")
     public ResponseEntity<LoanDTO> returnLoan(@RequestParam String userId,
                                               @RequestParam String bookId) {
         Loan returnedLoan = loanService.returnLoan(userId, bookId);
@@ -47,8 +47,8 @@ public class LoanController {
 
     @GetMapping
     @PreAuthorize("hasRole('LIBRARIAN')")
-    @Operation(summary = "Historial completo de préstamos",
-            description = "Retorna todos los préstamos registrados, activos y devueltos")
+    @Operation(summary = "Historial completo de prestamos",
+            description = "Retorna todos los prestamos registrados, activos y devueltos")
     public ResponseEntity<List<LoanDTO>> getAllLoans() {
         List<LoanDTO> loans = loanService.getAllLoans().stream()
                 .map(loanMapper::toDto)
@@ -56,10 +56,11 @@ public class LoanController {
         return ResponseEntity.ok(loans);
     }
 
+    // FIX: ahora tanto USER como LIBRARIAN pueden consultar sus propios prestamos
     @GetMapping("/my")
-    @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Mis préstamos",
-            description = "Retorna únicamente los préstamos del usuario autenticado")
+    @PreAuthorize("hasRole('USER') or hasRole('LIBRARIAN')")
+    @Operation(summary = "Mis prestamos",
+            description = "Retorna unicamente los prestamos del usuario autenticado")
     public ResponseEntity<List<LoanDTO>> getMyLoans(Authentication authentication) {
         String username = authentication.getName();
         List<LoanDTO> loans = loanService.getLoansByUsername(username).stream()
